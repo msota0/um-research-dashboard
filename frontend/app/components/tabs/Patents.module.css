@@ -1,0 +1,7 @@
+.root { display: flex; flex-direction: column; gap: 20px; }
+.statRow { display: grid; grid-template-columns: 280px; }
+.tableCard { background: var(--um-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.tableHeader { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--um-border); }
+.tableTitle { font-size: 0.95rem; font-weight: 700; color: var(--um-navy); }
+.csvBtn { padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-sm); border: 1px solid var(--um-border); background: var(--um-card); cursor: pointer; transition: all 0.15s; }
+.csvBtn:hover { background: var(--um-navy); color: #fff; border-color: var(--um-navy); }

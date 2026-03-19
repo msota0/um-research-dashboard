@@ -1,0 +1,20 @@
+.banners { padding: 12px 24px 0; }
+.main { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
+.hidden { display: none; }
+.footer {
+  background: var(--um-navy);
+  color: rgba(255,255,255,0.65);
+  font-size: 0.78rem;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 32px;
+}
+.footer a { color: rgba(255,255,255,0.8); text-decoration: underline; }
+.footer a:hover { color: #fff; }
+@media (max-width: 768px) {
+  .main { padding: 14px 14px; }
+}

@@ -1,0 +1,26 @@
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--um-border);
+  font-size: 0.82rem;
+}
+.info { color: var(--um-text-muted); }
+.buttons { display: flex; gap: 8px; }
+.btn {
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--um-border);
+  background: var(--um-card);
+  color: var(--um-text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover:not(:disabled) {
+  background: var(--um-navy);
+  color: #fff;
+  border-color: var(--um-navy);
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }

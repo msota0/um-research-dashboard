@@ -1,0 +1,109 @@
+/* ═══════════════════════════════════════════════════════════
+   University of Mississippi Research Dashboard — Global CSS
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --um-red: #CE1126;
+  --um-red-dark: #9B0D1E;
+  --um-navy: #002147;
+  --um-navy-light: #003366;
+  --um-gray-bg: #F2F3F5;
+  --um-card: #FFFFFF;
+  --um-border: #E4E6EA;
+  --um-text: #1A1D23;
+  --um-text-muted: #6B7280;
+  --um-text-light: #9CA3AF;
+
+  --oa-gold: #F5A623;
+  --oa-green: #27AE60;
+  --oa-hybrid: #2980B9;
+  --oa-bronze: #E67E22;
+  --oa-closed: #7F8C8D;
+  --oa-diamond: #1ABC9C;
+
+  --badge-openalex: #1565C0;
+  --badge-dimensions: #37474F;
+  --badge-both: #6A1B9A;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+
+  --font: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font);
+  background: var(--um-gray-bg);
+  color: var(--um-text);
+  min-height: 100vh;
+}
+
+a { color: var(--um-red); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button { font-family: var(--font); cursor: pointer; }
+
+/* ── Utility classes ── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── Skeleton animation ── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+
+/* ── Fade-in for tab panels ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fadeInUp { animation: fadeInUp 0.22s ease forwards; }
+
+/* ── OA status badges ── */
+.oaBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  color: #fff;
+  white-space: nowrap;
+}
+.oaBadge--gold    { background: var(--oa-gold); }
+.oaBadge--green   { background: var(--oa-green); }
+.oaBadge--hybrid  { background: var(--oa-hybrid); }
+.oaBadge--bronze  { background: var(--oa-bronze); }
+.oaBadge--closed  { background: var(--oa-closed); }
+.oaBadge--unknown { background: #BDC3C7; }
+.oaBadge--diamond { background: var(--oa-diamond); }
+
+/* ── Rank badge ── */
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--um-navy);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }

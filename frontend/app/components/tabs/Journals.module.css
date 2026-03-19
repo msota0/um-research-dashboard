@@ -1,0 +1,6 @@
+.root { display: flex; flex-direction: column; gap: 20px; }
+.tableCard { background: var(--um-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.tableHeader { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--um-border); flex-wrap: wrap; gap: 8px; }
+.tableTitle { font-size: 0.95rem; font-weight: 700; color: var(--um-navy); }
+.searchInput { padding: 7px 14px; border: 1px solid var(--um-border); border-radius: 20px; font-size: 0.83rem; outline: none; width: 200px; }
+.searchInput:focus { border-color: var(--um-navy); }

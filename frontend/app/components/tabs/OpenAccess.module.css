@@ -1,0 +1,74 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summaryBanner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--um-navy) 0%, var(--um-navy-light) 100%);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  color: #fff;
+}
+
+.summaryPct {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.summaryText {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.legendCard {
+  background: var(--um-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.legendTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.legendTable thead th {
+  background: var(--um-navy);
+  color: #fff;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.legendTable tbody tr {
+  border-bottom: 1px solid var(--um-border);
+}
+
+.legendTable tbody tr:hover {
+  background: #F8F9FB;
+}
+
+.legendTable td {
+  padding: 10px 16px;
+}
+
+@media (max-width: 768px) {
+  .charts { grid-template-columns: 1fr; }
+  .summaryPct { font-size: 1.8rem; }
+}

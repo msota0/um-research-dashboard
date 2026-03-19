@@ -1,0 +1,14 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF9E6;
+  border: 1px solid #FFE58F;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: #7D5A00;
+  margin-bottom: 8px;
+}
+.banner.critical { background: #FFF1F0; border-color: #FFA39E; color: #820014; }
+.icon { font-size: 1rem; }

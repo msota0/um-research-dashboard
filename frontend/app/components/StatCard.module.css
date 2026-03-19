@@ -1,0 +1,34 @@
+.card {
+  background: var(--um-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  min-height: 110px;
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.badgeWrap { position: absolute; top: 12px; right: 12px; }
+.label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--um-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+.value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--um-navy);
+  line-height: 1;
+}
+.skeleton {
+  height: 2rem;
+  width: 60%;
+  background: #e5e7eb;
+  border-radius: 6px;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+.sub { font-size: 0.76rem; color: var(--um-text-muted); margin-top: 5px; }
+.spark { margin-top: 10px; height: 44px; }

@@ -1,0 +1,105 @@
+.root { display: flex; flex-direction: column; gap: 16px; }
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.heading { font-size: 1rem; font-weight: 700; color: var(--um-navy); }
+.toolbarRight { display: flex; align-items: center; gap: 10px; }
+.searchInput {
+  padding: 7px 14px;
+  border: 1px solid var(--um-border);
+  border-radius: 20px;
+  font-size: 0.83rem;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--um-navy); }
+.orcidLink { font-size: 1.1rem; }
+
+/* ── Modal overlay ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInUp 0.15s ease;
+}
+
+.modal {
+  background: var(--um-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 620px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  background: var(--um-navy);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.modalTitle { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 3px; }
+.orcidModalLink { color: rgba(255,255,255,0.7); font-size: 0.75rem; text-decoration: none; }
+.orcidModalLink:hover { color: #fff; }
+
+.modalClose {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.modalClose:hover { color: #fff; }
+
+.modalStats {
+  display: flex;
+  gap: 28px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--um-border);
+}
+.modalStat { display: flex; flex-direction: column; gap: 2px; }
+.modalStatVal { font-size: 1.5rem; font-weight: 800; color: var(--um-navy); }
+.modalStatLabel { font-size: 0.72rem; color: var(--um-text-muted); text-transform: uppercase; font-weight: 600; }
+
+.modalSectionTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--um-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 20px 6px;
+  border-top: 1px solid var(--um-border);
+}
+
+/* ── Expertise section ── */
+.expertiseSection { padding: 6px 20px 16px; }
+
+/* ── Works list ── */
+.worksList { list-style: none; padding: 6px 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+.workItem { padding-bottom: 12px; border-bottom: 1px solid var(--um-border); }
+.workItem:last-child { border-bottom: none; padding-bottom: 0; }
+.workTitle { font-size: 0.87rem; color: var(--um-text); line-height: 1.4; }
+.workTitle a { color: var(--um-red); }
+.workMeta { font-size: 0.75rem; color: var(--um-text-muted); margin-top: 3px; }
+.noWorks { padding: 0 20px 16px; color: var(--um-text-muted); font-size: 0.85rem; }
