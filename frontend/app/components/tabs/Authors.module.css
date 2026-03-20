@@ -8,6 +8,7 @@
   gap: 12px;
 }
 .heading { font-size: 1rem; font-weight: 700; color: var(--um-navy); }
+.headingCount { font-size: 0.85rem; font-weight: 400; color: var(--um-text-muted); }
 .toolbarRight { display: flex; align-items: center; gap: 10px; }
 .searchInput {
   padding: 7px 14px;
@@ -20,6 +21,29 @@
 }
 .searchInput:focus { border-color: var(--um-navy); }
 .orcidLink { font-size: 1.1rem; }
+
+/* ── Load more ── */
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+.loadMoreBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--um-red, #C8102E);
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.loadMoreBtn:hover { background: #F5F5F7; }
+.loadMoreMeta { font-weight: 400; color: var(--um-text-muted); font-size: 0.82rem; }
 
 /* ── Modal overlay ── */
 .modalOverlay {

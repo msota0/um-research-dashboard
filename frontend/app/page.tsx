@@ -11,9 +11,9 @@ const Publications   = dynamic(() => import('./components/tabs/Publications'));
 const Fields         = dynamic(() => import('./components/tabs/Fields'));
 const OpenAccess     = dynamic(() => import('./components/tabs/OpenAccess'));
 const Authors        = dynamic(() => import('./components/tabs/Authors'));
-const Grants         = dynamic(() => import('./components/tabs/Grants'));
-const Trials         = dynamic(() => import('./components/tabs/Trials'));
-const Patents        = dynamic(() => import('./components/tabs/Patents'));
+// const Grants         = dynamic(() => import('./components/tabs/Grants'));
+// const Trials         = dynamic(() => import('./components/tabs/Trials'));
+// const Patents        = dynamic(() => import('./components/tabs/Patents'));
 const Collaborations = dynamic(() => import('./components/tabs/Collaborations'));
 const Journals       = dynamic(() => import('./components/tabs/Journals'));
 
@@ -38,6 +38,7 @@ export default function Page() {
 
   return (
     <>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -57,9 +58,6 @@ export default function Page() {
         {mountedTabs.has('fields')         && <div className={activeTab !== 'fields'         ? styles.hidden : ''}><Fields         {...tabProps} /></div>}
         {mountedTabs.has('openaccess')     && <div className={activeTab !== 'openaccess'     ? styles.hidden : ''}><OpenAccess     {...tabProps} /></div>}
         {mountedTabs.has('authors')        && <div className={activeTab !== 'authors'        ? styles.hidden : ''}><Authors        {...tabProps} /></div>}
-        {mountedTabs.has('grants')         && <div className={activeTab !== 'grants'         ? styles.hidden : ''}><Grants         {...tabProps} /></div>}
-        {mountedTabs.has('trials')         && <div className={activeTab !== 'trials'         ? styles.hidden : ''}><Trials         {...tabProps} /></div>}
-        {mountedTabs.has('patents')        && <div className={activeTab !== 'patents'        ? styles.hidden : ''}><Patents        {...tabProps} /></div>}
         {mountedTabs.has('collaborations') && <div className={activeTab !== 'collaborations' ? styles.hidden : ''}><Collaborations {...tabProps} /></div>}
         {mountedTabs.has('journals')       && <div className={activeTab !== 'journals'       ? styles.hidden : ''}><Journals       {...tabProps} /></div>}
       </main>
@@ -73,6 +71,7 @@ export default function Page() {
         </span>
         <a href="/api/cache-status" target="_blank" rel="noreferrer">Cache Status</a>
       </footer>
+      </div>
     </>
   );
 }

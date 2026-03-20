@@ -1,5 +1,7 @@
 // ── Types ─────────────────────────────────────────────────────────
 
+
+
 export interface ApiResponse<T> {
   data: T;
   source: string;
@@ -156,8 +158,10 @@ export const api = {
       ...(yearTo ? { year_to: yearTo } : {}),
     }),
 
-  authorsTop: (search = '') =>
-    apiFetch<Author[]>('/api/authors/top', search ? { search } : undefined),
+  authorsTop: (search = '', page = 1, perPage = 25) =>
+    apiFetch<{ items: Author[]; total: number; page: number; per_page: number }>('/api/authors/top', {
+      page, per_page: perPage, ...(search ? { search } : {}),
+    }),
 
   authorWorks: (id: string) =>
     apiFetch<AuthorWork[]>(`/api/authors/${id}/works`),

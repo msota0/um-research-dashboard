@@ -82,25 +82,26 @@
 /* ── Year filter ── */
 .yearFilter { display: flex; align-items: center; gap: 8px; }
 .yearLabel { color: rgba(255,255,255,0.75); font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
-.yearValue { color: #fff; font-size: 0.78rem; font-weight: 600; white-space: nowrap; min-width: 70px; }
-.rangeInput {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 80px;
-  height: 4px;
-  background: rgba(255,255,255,0.25);
-  border-radius: 2px;
+.yearSep { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+.yearSelect {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  cursor: pointer;
   outline: none;
-  cursor: pointer;
-}
-.rangeInput::-webkit-slider-thumb {
+  transition: background 0.15s;
+  appearance: none;
   -webkit-appearance: none;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--um-red);
-  border: 2px solid #fff;
-  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
 }
+.yearSelect:hover { background-color: rgba(255,255,255,0.2); }
+.yearSelect option { background: #1a2a4a; color: #fff; }
 
 /* ── Tab bar ── */
 .tabBar {

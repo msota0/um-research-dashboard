@@ -32,6 +32,7 @@
   border-radius: 20px;
   font-weight: 500;
   cursor: default;
+  font-size: 0.82rem;
   transition: opacity 0.15s, transform 0.15s;
   line-height: 1.4;
 }

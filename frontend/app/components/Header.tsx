@@ -9,14 +9,14 @@ const TABS = [
   { id: 'fields',         label: 'Research Fields',  icon: '🏷' },
   { id: 'openaccess',     label: 'Open Access',      icon: '🔓' },
   { id: 'authors',        label: 'Authors',          icon: '👥' },
-  { id: 'grants',         label: 'Grants',           icon: '💰' },
-  { id: 'trials',         label: 'Clinical Trials',  icon: '💊' },
-  { id: 'patents',        label: 'Patents',          icon: '💡' },
   { id: 'collaborations', label: 'Collaborations',   icon: '🌐' },
   { id: 'journals',       label: 'Journals',         icon: '📚' },
 ] as const;
 
 export type TabId = typeof TABS[number]['id'];
+
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i);
 
 interface Props {
   activeTab: TabId;
@@ -34,7 +34,6 @@ export default function Header({ activeTab, onTabChange, yearFrom, yearTo, onYea
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
-  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -53,8 +52,9 @@ export default function Header({ activeTab, onTabChange, yearFrom, yearTo, onYea
     searchTimer.current = setTimeout(async () => {
       const out: SearchResult[] = [];
       try {
-        const authResp = await api.authorsTop(q);
-        for (const a of (authResp.data ?? []).slice(0, 4)) {
+        const authResp = await api.authorsTop(q, 1, 10);
+        const authors = authResp.data?.items ?? [];
+        for (const a of authors.slice(0, 4)) {
           if (a.name.toLowerCase().includes(q.toLowerCase())) {
             out.push({ type: 'author', label: a.name, sub: `${a.works_count} publications`, tab: 'authors' });
           }
@@ -116,20 +116,34 @@ export default function Header({ activeTab, onTabChange, yearFrom, yearTo, onYea
             )}
           </div>
 
-          {/* Year filter */}
+          {/* Year filter — two dropdowns */}
           <div className={styles.yearFilter}>
             <span className={styles.yearLabel}>Years</span>
-            <input
-              type="range" min={2000} max={currentYear} value={yearFrom}
-              className={styles.rangeInput}
-              onChange={e => onYearChange(Number(e.target.value), yearTo)}
-            />
-            <input
-              type="range" min={2000} max={currentYear} value={yearTo}
-              className={styles.rangeInput}
-              onChange={e => onYearChange(yearFrom, Number(e.target.value))}
-            />
-            <span className={styles.yearValue}>{yearFrom}–{yearTo}</span>
+            <select
+              className={styles.yearSelect}
+              value={yearFrom}
+              onChange={e => {
+                const v = Number(e.target.value);
+                onYearChange(v, Math.max(v, yearTo));
+              }}
+            >
+              {YEARS.slice().reverse().map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <span className={styles.yearSep}>–</span>
+            <select
+              className={styles.yearSelect}
+              value={yearTo}
+              onChange={e => {
+                const v = Number(e.target.value);
+                onYearChange(Math.min(yearFrom, v), v);
+              }}
+            >
+              {YEARS.map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

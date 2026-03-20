@@ -37,7 +37,6 @@ export default function ExpertiseTags({ keywords, maxVisible = 30 }: Props) {
   }
 
   const visible = keywords.slice(0, maxVisible);
-  const maxScore = visible[0]?.total_score ?? 1;
 
   return (
     <div className={styles.root}>
@@ -50,16 +49,12 @@ export default function ExpertiseTags({ keywords, maxVisible = 30 }: Props) {
 
       <div className={styles.cloud}>
         {visible.map((kw, i) => {
-          const sizeRatio = kw.total_score / maxScore;   // 0 → 1
-          const fontSize  = 0.72 + sizeRatio * 0.52;    // 0.72rem → 1.24rem
-          const opacity   = 0.55 + sizeRatio * 0.45;    // 0.55 → 1.0
           const typeClass = TYPE_CLASS[kw.type] ?? 'typeExtracted';
 
           return (
             <span
               key={i}
               className={`${styles.tag} ${styles[typeClass]}`}
-              style={{ fontSize: `${fontSize}rem`, opacity }}
               title={`Score: ${kw.total_score.toFixed(2)}  |  Sources: ${sourceTooltip(kw.sources)}`}
             >
               {kw.keyword}
