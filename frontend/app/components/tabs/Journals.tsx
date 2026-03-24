@@ -34,7 +34,7 @@ export default function Journals({ onOaError }: Props) {
 
   return (
     <div className={`${styles.root} fadeInUp`}>
-      <ChartCard title="Top 20 Journals by Publication Count" source="openalex" tall>
+      <ChartCard title="Top 20 Sources by Publication Count" source="openalex" tall>
         {journals
           ? <div style={{ height: 480 }}>
               <HorizontalBarChart
@@ -49,7 +49,7 @@ export default function Journals({ onOaError }: Props) {
 
       <div className={styles.tableCard}>
         <div className={styles.tableHeader}>
-          <h3 className={styles.tableTitle}>Journal Table</h3>
+          <h3 className={styles.tableTitle}>Source Table</h3>
           <input
             className={styles.searchInput}
             type="search"

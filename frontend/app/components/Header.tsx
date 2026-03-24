@@ -4,13 +4,14 @@ import styles from './Header.module.css';
 import { api } from '../../lib/api';
 
 const TABS = [
-  { id: 'overview',       label: 'Overview',        icon: '⬡' },
-  { id: 'publications',   label: 'Publications',     icon: '📄' },
-  { id: 'fields',         label: 'Research Fields',  icon: '🏷' },
-  { id: 'openaccess',     label: 'Open Access',      icon: '🔓' },
-  { id: 'authors',        label: 'Authors',          icon: '👥' },
-  { id: 'collaborations', label: 'Collaborations',   icon: '🌐' },
-  { id: 'journals',       label: 'Journals',         icon: '📚' },
+  { id: 'overview',         label: 'Overview',          icon: '⬡' },
+  { id: 'publications',     label: 'Publications',       icon: '📄' },
+  { id: 'fields',           label: 'Research Fields',    icon: '🏷' },
+  { id: 'openaccess',       label: 'Open Access',        icon: '🔓' },
+  { id: 'authors',          label: 'Authors',            icon: '👥' },
+  { id: 'collaborations',   label: 'Collaborations',     icon: '🌐' },
+  { id: 'journals',         label: 'Journals',           icon: '📚' },
+  { id: 'citationsources',  label: 'Citation Sources',   icon: '🔗' },
 ] as const;
 
 export type TabId = typeof TABS[number]['id'];

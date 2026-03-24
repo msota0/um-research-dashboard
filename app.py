@@ -155,13 +155,13 @@ def pubs_list():
 
 @app.route("/api/authors/top")
 def authors_top():
-    key = f"openalex:top_authors:{INSTITUTION_ID}"
+    page     = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 25))
+    search   = request.args.get("search", "")
+    key = f"openalex:top_authors:{INSTITUTION_ID}:{page}:{per_page}:{search}"
     _maybe_invalidate(key)
-    search = request.args.get("search", "").lower()
     try:
-        data = openalex.get_top_authors()
-        if search:
-            data = [a for a in data if search in a.get("name", "").lower()]
+        data = openalex.get_top_authors(page=page, per_page=per_page, search=search)
         return _resp(data, "openalex")
     except Exception as e:
         logger.error(f"authors_top error: {e}")
@@ -380,6 +380,79 @@ def oa_trend():
     except Exception as e:
         logger.error(f"oa_trend error: {e}")
         return jsonify({"error": str(e), "source_error": "openalex"}), 500
+    
+
+# ── ADD THIS ROUTE TO app.py ──────────────────────────────────────────────────
+# Place it alongside the other @app.route("/api/authors/...") routes.
+# It calls a new method on the DimensionsClient: get_author_citation_sources()
+
+@app.route("/api/authors/<author_id>/citation-sources")
+def author_citation_sources(author_id: str):
+    """
+    For a single UM Oxford author (identified by their OpenAlex author_id),
+    fetch all their publications via Dimensions, then aggregate the sources
+    (journals/publishers) that those publications were cited by — i.e. which
+    outlets cite this author's work, and how many times, and whether that
+    outlet is open-access.
+
+    Flow:
+      1. Resolve author's DOIs from OpenAlex (already cached by get_author_works)
+      2. For each DOI, query Dimensions for the citing publications' source info
+      3. Aggregate by source name → {count, is_oa, publisher}
+      4. Return sorted list of sources with citation counts
+
+    Cache key: dimensions:citation_sources:{author_id}
+    TTL: 7 days (604800 seconds) — this is expensive to compute
+    """
+    _maybe_invalidate(f"dimensions:citation_sources:{author_id}")
+
+    # Step 1: get author's DOIs from OpenAlex
+    dois = []
+    try:
+        oa_key = f"openalex:author_all_dois:{author_id}"
+        dois = cache.get(oa_key) or []
+        if not dois:
+            dois = openalex.get_author_dois(author_id) or []
+            if dois:
+                cache.set(oa_key, dois, "openalex", 604800)
+    except Exception as e:
+        logger.warning(f"get_author_dois failed for {author_id}: {e}")
+        # Return empty rather than 500 — frontend shows graceful empty state
+        return _resp([], "dimensions")
+
+    if not dois:
+        logger.info(f"No DOIs found for author {author_id}")
+        return _resp([], "dimensions")
+
+    # Step 2: Dimensions aggregation — also never raises
+    try:
+        data = dimensions.get_author_citation_sources(author_id, dois)
+        return _resp(data or [], "dimensions")
+    except Exception as e:
+        logger.error(f"get_author_citation_sources failed for {author_id}: {e}")
+        return _resp([], "dimensions")
+
+
+# ── ADD THIS ROUTE TO app.py ──────────────────────────────────────────────────
+# Batch endpoint: called once when the CitationSources tab first mounts.
+# Returns citation-source data for ALL UM authors in one go (from cache).
+# The frontend calls this first; if an author is missing it falls back to
+# the per-author endpoint above.
+
+@app.route("/api/citation-sources/all")
+def citation_sources_all():
+    """
+    Returns pre-computed citation-source profiles for all UM Oxford authors.
+    This is populated by seed.py. If not yet seeded, returns empty dict and
+    the frontend falls back to loading authors one at a time.
+    """
+    cache_key = f"dimensions:citation_sources_all:{INSTITUTION_ID}"
+    _maybe_invalidate(cache_key)
+    cached = cache.get(cache_key)
+    if cached:
+        return _resp(cached, "dimensions", cached=True)
+    # Not seeded yet — return empty so frontend degrades gracefully
+    return _resp({}, "dimensions", cached=False)
 
 
 @app.route("/api/cache-status")

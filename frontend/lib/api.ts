@@ -1,7 +1,5 @@
 // ── Types ─────────────────────────────────────────────────────────
 
-
-
 export interface ApiResponse<T> {
   data: T;
   source: string;
@@ -117,6 +115,14 @@ export interface PubsByYearData {
   source_error?: string;
 }
 
+export interface CitationSourceRow {
+  source_name:    string;
+  publisher:      string;
+  citation_count: number;
+  is_oa:          boolean;
+  oa_type:        string;
+}
+
 // ── Fetch helper ───────────────────────────────────────────────────
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:5000';
@@ -173,6 +179,9 @@ export const api = {
       sources: string[];
       type: string;
     }>>(`/api/authors/${id}/expertise`, orcid ? { orcid } : undefined),
+
+  authorCitationSources: (id: string) =>
+    apiFetch<CitationSourceRow[]>(`/api/authors/${id}/citation-sources`),
 
   journalsTop: () =>
     apiFetch<Journal[]>('/api/journals/top'),

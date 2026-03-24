@@ -1,0 +1,368 @@
+/* CitationSources.module.css
+   Matches the design language of Authors.module.css and Journals.module.css
+   Uses only CSS variables already defined in globals.css
+*/
+
+/* ── Root ── */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.toolbarLeft  { display: flex; flex-direction: column; gap: 3px; }
+.toolbarRight { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--um-navy);
+  margin: 0;
+}
+.headingCount {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--um-text-muted);
+}
+.subheading {
+  font-size: 0.8rem;
+  color: var(--um-text-muted);
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.4;
+}
+
+.searchInput {
+  padding: 7px 14px;
+  border: 1px solid var(--um-border);
+  border-radius: 20px;
+  font-size: 0.83rem;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s;
+  font-family: var(--font);
+}
+.searchInput:focus { border-color: var(--um-navy); }
+
+/* ── Author list container ── */
+.authorList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Author block (row + expandable panel) ── */
+.authorBlock {
+  background: var(--um-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--um-border);
+  transition: box-shadow 0.15s;
+}
+.authorBlockOpen {
+  box-shadow: var(--shadow-md);
+  border-color: var(--um-navy);
+}
+
+/* ── Author row button ── */
+.authorRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  font-family: var(--font);
+}
+.authorRow:hover { background: var(--um-gray-bg); }
+.authorBlockOpen .authorRow {
+  background: var(--um-navy);
+}
+
+.authorMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--um-navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.authorBlockOpen .authorName { color: #fff; }
+
+.authorStats {
+  font-size: 0.74rem;
+  color: var(--um-text-muted);
+}
+.authorBlockOpen .authorStats { color: rgba(255,255,255,0.65); }
+
+/* summary pill on the row */
+.summaryPill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--um-navy);
+  background: var(--um-gray-bg);
+  border: 1px solid var(--um-border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.authorBlockOpen .summaryPill {
+  background: rgba(255,255,255,0.15);
+  border-color: transparent;
+  color: #fff;
+}
+
+.chevron {
+  font-size: 1rem;
+  color: var(--um-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.chevronOpen  { transform: rotate(180deg); color: rgba(255,255,255,0.8); }
+
+/* ── Sources panel ── */
+.sourcesPanel {
+  padding: 16px;
+  border-top: 1px solid var(--um-border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeInUp 0.18s ease forwards;
+}
+
+.emptyMsg {
+  font-size: 0.84rem;
+  color: var(--um-text-muted);
+  padding: 8px 0;
+}
+
+/* ── Summary bar ── */
+.summaryBar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summaryCard {
+  flex: 1;
+  min-width: 120px;
+  background: var(--um-gray-bg);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.summaryVal {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--um-navy);
+  line-height: 1;
+}
+.summaryPct { color: var(--oa-green); }
+
+.summaryLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--um-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Source controls (search + filter pills) ── */
+.sourceControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sourceSearch {
+  padding: 6px 12px;
+  border: 1px solid var(--um-border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  outline: none;
+  width: 180px;
+  font-family: var(--font);
+}
+.sourceSearch:focus { border-color: var(--um-navy); }
+
+.filterPills {
+  display: flex;
+  gap: 6px;
+}
+
+.filterPill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--um-border);
+  background: var(--um-card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--um-text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--font);
+}
+.filterPill:hover { border-color: var(--um-navy); color: var(--um-navy); }
+.filterPillActive {
+  background: var(--um-navy);
+  border-color: var(--um-navy);
+  color: #fff;
+}
+
+.sourceCount {
+  font-size: 0.75rem;
+  color: var(--um-text-muted);
+  margin-left: auto;
+}
+
+/* ── Sources table ── */
+.tableWrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--um-border);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.table thead {
+  background: var(--um-gray-bg);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--um-text-muted);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--um-border);
+}
+
+.tr {
+  border-bottom: 1px solid var(--um-border);
+  transition: background 0.1s;
+}
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: #FAFBFC; }
+
+.table td {
+  padding: 9px 12px;
+  vertical-align: middle;
+}
+
+/* column widths */
+.thRank      { width: 44px; }
+.thSource    { min-width: 180px; }
+.thPublisher { min-width: 140px; color: var(--um-text-muted); }
+.thCount     { min-width: 180px; }
+.thOA        { width: 110px; }
+
+.tdRank      { text-align: center; }
+.tdSource    { font-weight: 600; color: var(--um-text); }
+.tdPublisher { color: var(--um-text-muted); font-size: 0.78rem; }
+.tdCount     { }
+.tdOA        { }
+
+.sourceName {
+  display: block;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Inline bar chart inside citation count cell ── */
+.countBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.countBarFill {
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+  min-width: 4px;
+}
+
+.countLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--um-text);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Load more ── */
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.loadMoreBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--um-red);
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: background 0.15s;
+  font-family: var(--font);
+}
+.loadMoreBtn:hover { background: #F5F5F7; }
+
+.loadMoreMeta {
+  font-weight: 400;
+  color: var(--um-text-muted);
+  font-size: 0.82rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .summaryBar { gap: 8px; }
+  .summaryCard { min-width: 90px; padding: 8px 10px; }
+  .summaryVal  { font-size: 1.1rem; }
+  .sourceControls { flex-direction: column; align-items: flex-start; }
+  .sourceCount { margin-left: 0; }
+  .thPublisher, .tdPublisher { display: none; }
+}
