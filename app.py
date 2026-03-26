@@ -405,32 +405,24 @@ def author_citation_sources(author_id: str):
     TTL: 7 days (604800 seconds) — this is expensive to compute
     """
     _maybe_invalidate(f"dimensions:citation_sources:{author_id}")
-
-    # Step 1: get author's DOIs from OpenAlex
-    dois = []
     try:
+        # Step 1: get author's DOIs from OpenAlex (use a wider fetch than the
+        # modal's top-5; we want all works that have DOIs for Dimensions lookup)
         oa_key = f"openalex:author_all_dois:{author_id}"
-        dois = cache.get(oa_key) or []
+        dois = cache.get(oa_key)
         if not dois:
-            dois = openalex.get_author_dois(author_id) or []
-            if dois:
-                cache.set(oa_key, dois, "openalex", 604800)
-    except Exception as e:
-        logger.warning(f"get_author_dois failed for {author_id}: {e}")
-        # Return empty rather than 500 — frontend shows graceful empty state
-        return _resp([], "dimensions")
+            dois = openalex.get_author_dois(author_id)          # new OA method
+            cache.set(oa_key, dois, "openalex", 604800)
 
-    if not dois:
-        logger.info(f"No DOIs found for author {author_id}")
-        return _resp([], "dimensions")
+        if not dois:
+            return _resp([], "dimensions")
 
-    # Step 2: Dimensions aggregation — also never raises
-    try:
+        # Step 2 + 3: Dimensions aggregation
         data = dimensions.get_author_citation_sources(author_id, dois)
-        return _resp(data or [], "dimensions")
+        return _resp(data, "dimensions")
     except Exception as e:
-        logger.error(f"get_author_citation_sources failed for {author_id}: {e}")
-        return _resp([], "dimensions")
+        logger.error(f"author_citation_sources error ({author_id}): {e}")
+        return jsonify({"error": str(e), "source_error": "dimensions"}), 500
 
 
 # ── ADD THIS ROUTE TO app.py ──────────────────────────────────────────────────

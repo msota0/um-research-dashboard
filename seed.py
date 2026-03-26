@@ -165,12 +165,54 @@ def seed_dimensions():
     log.info("  Dimensions seeding complete.\n")
 
 
+def _fetch_all_authors(per_page: int = 100) -> list:
+    """
+    Paginate through ALL UM Oxford authors from OpenAlex.
+    Uses last_known_institutions filter so only current UM authors are returned.
+    Returns a flat list of author dicts.
+    """
+    all_authors = []
+    page = 1
+    total = None
+
+    while True:
+        try:
+            result = oa.get_top_authors(page=page, per_page=per_page)
+            items = result.get("items", []) if isinstance(result, dict) else []
+            if total is None:
+                total = result.get("total", 0) if isinstance(result, dict) else 0
+                log.info(f"  Total UM Oxford authors in OpenAlex: {total}")
+
+            if not items:
+                break
+
+            all_authors.extend(items)
+            log.info(f"  Fetched page {page} ({len(all_authors)}/{total} authors)")
+
+            if len(all_authors) >= total:
+                break
+
+            page += 1
+            time.sleep(0.5)  # polite delay between OpenAlex pages
+
+        except Exception as e:
+            log.warning(f"  Failed fetching authors page {page}: {e}")
+            break
+
+    return all_authors
+
+
 def seed_citation_sources():
     """
-    Pre-warm citation source data for the top 50 UM Oxford authors.
-    This is the most expensive operation — each author requires multiple
-    Dimensions API calls (one per batch of 5 DOIs).
-    Skip authors that are already cached.
+    Pre-warm citation source data for ALL UM Oxford authors.
+
+    Paginates through the full OpenAlex author list (not just top 50),
+    fetches each author's DOIs, then queries Dimensions for their
+    outgoing citation sources. Skips authors already in cache.
+
+    This is the most time-consuming step — allow 1-3 hours for a full
+    institution depending on author count and Dimensions rate limits.
+    Use --citations-only to run just this step after initial seeding.
     """
     api_key = os.getenv("DIMENSIONS_API_KEY", "")
     if not api_key:
@@ -178,21 +220,17 @@ def seed_citation_sources():
         return
 
     log.info("── Citation Sources ─────────────────────────────────")
-    log.info("  Fetching top 50 authors from OpenAlex …")
+    log.info("  Fetching ALL UM Oxford authors from OpenAlex (paginated) …")
 
-    try:
-        authors_data = oa.get_top_authors(page=1, per_page=50)
-        authors = authors_data.get("items", []) if isinstance(authors_data, dict) else []
-    except Exception as e:
-        log.warning(f"  Could not fetch authors: {e}")
-        return
+    authors = _fetch_all_authors(per_page=100)
 
     if not authors:
         log.warning("  No authors returned — skipping citation sources")
         return
 
-    log.info(f"  Found {len(authors)} authors. Seeding citation sources …")
-    log.info("  (This may take several minutes due to Dimensions rate limits)\n")
+    log.info(f"\n  {len(authors)} total authors to process.")
+    log.info("  Authors already cached will be skipped.")
+    log.info("  Estimated time: ~5-10 seconds per author (Dimensions rate limit)\n")
 
     success = 0
     skipped = 0
@@ -205,49 +243,61 @@ def seed_citation_sources():
         if not aid:
             continue
 
-        # Skip if already cached
+        # Skip if already cached and non-empty
         cache_key = f"dimensions:citation_sources:{aid}"
-        if cache.get(cache_key) is not None:
-            log.info(f"  [{idx:2d}/{len(authors)}] ⟳ {name} (cached, skipping)")
+        existing = cache.get(cache_key)
+        if existing is not None:
+            log.info(f"  [{idx:4d}/{len(authors)}] ⟳ {name} ({len(existing)} sources cached, skipping)")
             skipped += 1
             continue
 
-        log.info(f"  [{idx:2d}/{len(authors)}] Fetching DOIs for {name} …")
+        log.info(f"  [{idx:4d}/{len(authors)}] {name}")
 
         # Step 1: get DOIs from OpenAlex
         try:
             dois = oa.get_author_dois(aid)
         except Exception as e:
-            log.warning(f"    ✗ Could not fetch DOIs: {e}")
+            log.warning(f"    ✗ DOI fetch failed: {e}")
             failed += 1
             continue
 
         if not dois:
-            log.info(f"    (no DOIs found, skipping)")
+            log.info(f"    (no DOIs — skipping)")
+            # Cache empty result so we don't retry on next seed run
+            cache.set(cache_key, [], "dimensions", TTL_PERMANENT)
             skipped += 1
             continue
 
-        log.info(f"    {len(dois)} DOIs → querying Dimensions …")
+        log.info(f"    {len(dois)} DOIs → Dimensions …")
 
-        # Step 2: get citation sources from Dimensions
+        # Step 2: get outgoing citation sources from Dimensions
         try:
             sources = dim.get_author_citation_sources(aid, dois)
-            log.info(f"    ✓ {len(sources)} unique sources found")
+            log.info(f"    ✓ {len(sources)} unique sources")
             success += 1
         except Exception as e:
-            log.warning(f"    ✗ Dimensions query failed: {e}")
+            log.warning(f"    ✗ Dimensions failed: {e}")
             failed += 1
 
-        # Respect Dimensions rate limit between authors
+        # Dimensions rate limit: 30 req/min — be conservative
         time.sleep(3)
 
-    log.info(f"\n  Citation sources complete: {success} seeded, {skipped} skipped, {failed} failed\n")
+        # Progress checkpoint every 25 authors
+        if idx % 25 == 0:
+            log.info(f"\n  ── Checkpoint: {success} done, {skipped} skipped, {failed} failed ──\n")
+
+    log.info(f"\n  Citation sources complete:")
+    log.info(f"    ✓ Seeded:  {success}")
+    log.info(f"    ⟳ Skipped: {skipped} (already cached)")
+    log.info(f"    ✗ Failed:  {failed}")
+    log.info(f"    Total:     {len(authors)}\n")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Seed cache.db from OpenAlex + Dimensions AI")
-    parser.add_argument("--refresh", action="store_true", help="Clear expired entries before seeding")
+    parser.add_argument("--refresh",        action="store_true", help="Clear expired entries before seeding")
     parser.add_argument("--skip-citations", action="store_true", help="Skip citation sources seeding (faster)")
+    parser.add_argument("--citations-only", action="store_true", help="Only run citation sources seeding (skip OpenAlex + Dimensions general data)")
     args = parser.parse_args()
 
     log.info("═══════════════════════════════════════════════")
@@ -263,10 +313,11 @@ def main():
     iid = oa.verify_institution()
     log.info(f"  Institution ID: {iid}\n")
 
-    seed_openalex(iid)
-    seed_dimensions()
+    if not args.citations_only:
+        seed_openalex(iid)
+        seed_dimensions()
 
-    if not args.skip_citations:
+    if args.citations_only or not args.skip_citations:
         seed_citation_sources()
     else:
         log.info("── Citation Sources ─── (skipped via --skip-citations flag)")

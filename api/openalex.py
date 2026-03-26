@@ -634,7 +634,7 @@ class OpenAlexClient:
             if cached:
                 return cached
         params = {
-            "filter": f"affiliations.institution.id:{inst_id}",
+            "filter": f"last_known_institutions.id:{inst_id}",
             "sort": "works_count:desc",
             "per-page": str(per_page),
             "page": str(page),
