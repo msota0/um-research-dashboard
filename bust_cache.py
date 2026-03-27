@@ -1,6 +1,11 @@
-import sqlite3
+import sqlite3, os
+from dotenv import load_dotenv
 
-with sqlite3.connect('cache.db') as conn:
-    deleted = conn.execute("DELETE FROM cache WHERE key LIKE '%top_authors%'")
-    conn.commit()
-    print(f'Deleted {deleted.rowcount} cache entries')
+load_dotenv()
+db = os.getenv("CACHE_DB_PATH", "cache.db")
+conn = sqlite3.connect(db)
+count = conn.execute("SELECT COUNT(*) FROM cache").fetchone()[0]
+conn.execute("DELETE FROM cache")
+conn.commit()
+conn.close()
+print(f"Cleared {count} entries from {db}")
