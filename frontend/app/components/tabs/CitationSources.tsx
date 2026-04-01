@@ -328,7 +328,7 @@ export default function CitationSources({ onOaError, onDimError }: Props) {
                               <div
                                 className={styles.countBarFill}
                                 style={{
-                                  width: `${Math.min(100, (s.citation_count / (visibleSources[0]?.citation_count || 1)) * 100)}%`,
+                                  width: `${Math.min(160, (s.citation_count / (visibleSources[0]?.citation_count || 1)) * 160)}px`,
                                   background: s.is_oa ? 'var(--oa-green)' : 'var(--um-navy)',
                                 }}
                               />

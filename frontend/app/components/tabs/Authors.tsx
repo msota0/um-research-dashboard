@@ -81,7 +81,7 @@ export default function Authors({ onOaError }: Props) {
   const columns: Column<Author & { __rank: number }>[] = [
     { key: '__rank', label: '#', render: v => <span className="rankBadge">{String(v)}</span> },
     { key: 'name', label: 'Name' },
-    { key: 'works_count', label: 'Publications', render: v => fmt(Number(v)) },
+    { key: 'works_count', label: 'UM Publications', render: v => fmt(Number(v)) },
     { key: 'cited_by_count', label: 'Citations', render: v => fmt(Number(v)) },
     { key: 'h_index', label: 'h-index' },
     {
