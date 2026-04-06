@@ -401,8 +401,8 @@
 
 .thRank   { width: 40px; }
 .thSource { min-width: 200px; }
-.thCount  { min-width: 160px; }
-.thOA     { width: 90px; }
+.thCount  { width: 220px; }
+.thOA     { width: 90px; white-space: nowrap; }
 
 .tdRank   { text-align: center; }
 .tdSource {}
@@ -434,6 +434,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .countBarFill {
@@ -442,6 +443,7 @@
   flex-shrink: 0;
   transition: width 0.3s ease;
   min-width: 4px;
+  max-width: 160px;
 }
 
 .countLabel {
@@ -449,6 +451,8 @@
   font-weight: 700;
   color: var(--um-text);
   white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 36px;
 }
 
 /* ── Responsive ── */
