@@ -32,7 +32,7 @@ export default function Overview({ yearFrom, yearTo, onDimError, onOaError }: Pr
         api.institutionOverview(),
         api.grantsSummary(),
         api.pubsOpenAccess(),
-        api.pubsByYear(),
+        api.pubsByYear(yearFrom, yearTo),
       ]);
 
       if (cancelled) return;
@@ -59,7 +59,7 @@ export default function Overview({ yearFrom, yearTo, onDimError, onOaError }: Pr
 
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [yearFrom, yearTo]);
 
   const oaPct = (() => {
     if (!oaData) return null;

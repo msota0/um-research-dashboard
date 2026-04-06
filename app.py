@@ -82,6 +82,8 @@ def institution_overview():
 
 @app.route("/api/publications/by-year")
 def pubs_by_year():
+    year_from = request.args.get("year_from")
+    year_to = request.args.get("year_to")
     key_oa = f"openalex:pubs_by_year:{INSTITUTION_ID}"
     _maybe_invalidate(key_oa)
     source_error = None
@@ -96,6 +98,13 @@ def pubs_by_year():
         dim_data = dimensions.get_publications_by_year()
     except Exception as e:
         logger.error(f"Dimensions pubs_by_year error: {e}")
+    if year_from:
+        oa_data = [x for x in oa_data if x["year"] >= int(year_from)]
+        dim_data = [x for x in dim_data if int(x["year"]) >= int(year_from)]
+
+    if year_to:
+        oa_data = [x for x in oa_data if x["year"] <= int(year_to)]
+        dim_data = [x for x in dim_data if int(x["year"]) <= int(year_to)]
     result = {"openalex": oa_data, "dimensions": dim_data}
     if source_error:
         result["source_error"] = source_error
@@ -158,7 +167,7 @@ def authors_top():
     page     = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 25))
     search   = request.args.get("search", "")
-    key = f"openalex:top_authors:{INSTITUTION_ID}:{page}:{per_page}:{search}"
+    key = f"openalex:top_authors_full:{INSTITUTION_ID}"
     _maybe_invalidate(key)
     try:
         data = openalex.get_top_authors(page=page, per_page=per_page, search=search)

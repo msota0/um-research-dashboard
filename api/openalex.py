@@ -42,7 +42,7 @@ class OpenAlexClient:
                     delay *= 2
                     continue
                 resp.raise_for_status()
-                time.sleep(0.5)
+                time.sleep(0.1)
                 return resp.json()
             except requests.RequestException as e:
                 if attempt == retries - 1:
@@ -156,7 +156,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "publication_year",
-                "per-page": "200",
+                "per_page": "200",
             },
         )
 
@@ -195,7 +195,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "primary_topic.field.id",
-                "per-page": "200",
+                "per_page": "200",
             },
         )
 
@@ -304,7 +304,7 @@ class OpenAlexClient:
 
         params = {
             "filter": ",".join(filters),
-            "per-page": str(per_page),
+            "per_page": str(per_page),
             "page": str(page),
             "select": "id,title,doi,publication_year,type,open_access,primary_location",
         }
@@ -346,24 +346,39 @@ class OpenAlexClient:
         Ranking is by UM-only publication count.
         """
         inst_id = self.institution_id or FALLBACK_ID
-        cache_key = f"openalex:top_authors:v3:{inst_id}:{page}:{per_page}:{search}"
+        cache_key = f"openalex:top_authors_full:{inst_id}"
 
+        start = (page - 1) * per_page
+        end = start + per_page
+
+        # 1. Try full cached list first
         if self.cache:
             cached = self.cache.get(cache_key)
             if cached:
-                return cached
+                full_items = cached
 
-        # Pull a large set of UM works and aggregate authors from those works.
-        # You can tune max_pages upward if you want broader coverage.
-        per_page_works = 200
-        max_pages = 10   # up to 2000 UM works scanned
+                if search:
+                    s = search.strip().lower()
+                    full_items = [a for a in full_items if s in a["name"].lower()]
+
+                total = len(full_items)
+                return {
+                    "items": full_items[start:end],
+                    "total": total,
+                    "page": page,
+                    "per_page": per_page,
+                }
+
+        # 2. Build full author map from ALL institution works using cursor paging
+        per_page_works = 100
+        cursor = "*"
         author_map = {}
 
-        for works_page in range(1, max_pages + 1):
+        while cursor:
             params = {
                 "filter": f"institutions.id:{inst_id}",
-                "per-page": str(per_page_works),
-                "page": str(works_page),
+                "per_page": str(per_page_works),
+                "cursor": cursor,
                 "select": "id,authorships",
             }
 
@@ -388,8 +403,6 @@ class OpenAlexClient:
                     if not author_id or not author_name:
                         continue
 
-                    # Only count this authorship if THIS work explicitly links the author
-                    # to UM Oxford in the authorship institutions.
                     has_um_on_this_work = False
                     for inst in institutions:
                         auth_inst_id = (inst.get("id", "") or "").split("/")[-1]
@@ -409,27 +422,19 @@ class OpenAlexClient:
 
                     author_map[author_id]["um_publication_count"] += 1
 
-            if len(works) < per_page_works:
-                break
+            cursor = data.get("meta", {}).get("next_cursor")
 
         authors = list(author_map.values())
 
-        # Optional search filter
         if search:
             s = search.strip().lower()
             authors = [a for a in authors if s in a["name"].lower()]
 
-        # Sort by UM-only publication count
         authors.sort(key=lambda x: x["um_publication_count"], reverse=True)
 
-        total = len(authors)
-        start = (page - 1) * per_page
-        end = start + per_page
-        page_authors = authors[start:end]
-
-        # Enrich page authors with global profile stats for display
-        enriched_items = []
-        for a in page_authors:
+        # 3. Enrich ALL authors once
+        full_items = []
+        for a in authors:
             try:
                 profile = self._get(
                     f"/authors/{a['id']}",
@@ -437,36 +442,40 @@ class OpenAlexClient:
                         "select": "id,display_name,works_count,cited_by_count,summary_stats,orcid"
                     }
                 )
-                enriched_items.append({
+                full_items.append({
                     "id": a["id"],
                     "name": profile.get("display_name", a["name"]),
-                    "works_count": a["um_publication_count"],   # UM-only count for this dashboard
-                    "cited_by_count": profile.get("cited_by_count", 0),   # global citations
-                    "h_index": profile.get("summary_stats", {}).get("h_index", 0),  # global h-index
+                    "total_publications": profile.get("works_count", 0),
+                    "um_publications": a["um_publication_count"],
+                    "cited_by_count": profile.get("cited_by_count", 0),
+                    "h_index": profile.get("summary_stats", {}).get("h_index", 0),
                     "orcid": profile.get("orcid"),
                 })
             except Exception as e:
                 logger.warning(f"Failed to enrich author {a['id']}: {e}")
-                enriched_items.append({
+                full_items.append({
                     "id": a["id"],
                     "name": a["name"],
-                    "works_count": a["um_publication_count"],
+                    "total_publications": 0,
+                    "um_publications": a["um_publication_count"],
                     "cited_by_count": 0,
                     "h_index": 0,
                     "orcid": None,
                 })
 
-        result = {
-            "items": enriched_items,
+        # 4. Cache FULL enriched list
+        if self.cache:
+            self.cache.set(cache_key, full_items, "openalex", 86400)
+
+        total = len(full_items)
+
+        # 5. Return only requested page
+        return {
+            "items": full_items[start:end],
             "total": total,
             "page": page,
             "per_page": per_page,
         }
-
-        if self.cache:
-            self.cache.set(cache_key, result, "openalex", 86400)
-
-        return result
 
     def get_author_works(self, author_id: str) -> list:
         cache_key = f"openalex:author_works:{author_id}"
@@ -481,7 +490,7 @@ class OpenAlexClient:
             {
                 "filter": f"authorships.author.id:{author_id}",
                 "sort": "cited_by_count:desc",
-                "per-page": "5",
+                "per_page": "5",
                 "select": "id,title,doi,publication_year,cited_by_count",
             },
         )
@@ -517,7 +526,7 @@ class OpenAlexClient:
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "primary_location.source.id",
                 "sort": "count:desc",
-                "per-page": "20",
+                "per_page": "20",
             },
         )
 
@@ -546,7 +555,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "authorships.institutions.id",
-                "per-page": "50",
+                "per_page": "50",
             },
         )
 
@@ -586,7 +595,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "authorships.institutions.country_code",
-                "per-page": "100",
+                "per_page": "100",
             },
         )
 
@@ -626,7 +635,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id},is_oa:true",
                 "group_by": "publication_year",
-                "per-page": "200",
+                "per_page": "200",
             },
         )
 
@@ -635,7 +644,7 @@ class OpenAlexClient:
             {
                 "filter": f"institutions.id:{inst_id}",
                 "group_by": "publication_year",
-                "per-page": "200",
+                "per_page": "200",
             },
         )
 
@@ -702,7 +711,7 @@ class OpenAlexClient:
                     {
                         "filter": f"authorships.author.id:{author_id}",
                         "sort": "cited_by_count:desc",
-                        "per-page": str(per_page),
+                        "per_page": str(per_page),
                         "page": str(page),
                         "select": "id,doi",
                     },

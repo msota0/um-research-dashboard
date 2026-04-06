@@ -43,10 +43,11 @@ export interface PaginatedResult<T> {
 export interface Author {
   id: string;
   name: string;
-  works_count: number;
+  total_publications: number;
+  um_publications: number;
   cited_by_count: number;
   h_index: number;
-  orcid?: string;
+  orcid?: string | null;
 }
 
 export interface AuthorWork {
