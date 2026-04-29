@@ -30,9 +30,9 @@ log = logging.getLogger("seed")
 TTL_PERMANENT = 365 * 24 * 3600   # 1 year
 
 # ── import project modules ────────────────────────────────────────────────────
-from api.cache import CacheManager
-from api.openalex import OpenAlexClient, FALLBACK_ID
-from api.dimensions import DimensionsClient
+from backend.api.cache import CacheManager
+from backend.api.openalex import OpenAlexClient, FALLBACK_ID
+from backend.api.dimensions import DimensionsClient
 
 cache  = CacheManager(os.getenv("CACHE_DB_PATH", "cache.db"))
 oa     = OpenAlexClient(os.getenv("OPENALEX_EMAIL", "research@olemiss.edu"), cache)

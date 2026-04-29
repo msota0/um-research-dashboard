@@ -38,6 +38,13 @@ Open your browser at http://127.0.0.1:5000.
 
 ---
 
+## Project layout
+
+- `backend/` — main Flask application and backend routing logic
+- `helpers/` — utility scripts for seeding, cache cleanup, author extraction, and citation-cache management
+
+---
+
 ## Environment Variables (`.env`)
 
 | Variable | Description |

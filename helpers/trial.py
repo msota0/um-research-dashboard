@@ -7,7 +7,7 @@
 # for r in res.json.get('organizations', []):
 #     print(r)
 
-# from api.cache import CacheManager
+# from backend.api.cache import CacheManager
 # import os
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -25,9 +25,9 @@
 # print('Cache cleared')
 
 # from dotenv import load_dotenv; load_dotenv()
-# from api.cache import CacheManager
-# from api.openalex import OpenAlexClient
-# from api.dimensions import DimensionsClient
+# from backend.api.cache import CacheManager
+# from backend.api.openalex import OpenAlexClient
+# from backend.api.dimensions import DimensionsClient
 # import os, time, logging
 # logging.basicConfig(level=logging.INFO)
 # import os
@@ -135,9 +135,9 @@
 # load_dotenv()
 # logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-# from api.cache import CacheManager
-# from api.openalex import OpenAlexClient
-# from api.dimensions import DimensionsClient
+# from backend.api.cache import CacheManager
+# from backend.api.openalex import OpenAlexClient
+# from backend.api.dimensions import DimensionsClient
 
 # cache = CacheManager(os.getenv("CACHE_DB_PATH", "cache.db"))
 # oa    = OpenAlexClient(os.getenv("OPENALEX_EMAIL", "research@olemiss.edu"), cache)
@@ -184,9 +184,9 @@
 # load_dotenv()
 # logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-# from api.cache import CacheManager
-# from api.openalex import OpenAlexClient
-# from api.dimensions import DimensionsClient
+# from backend.api.cache import CacheManager
+# from backend.api.openalex import OpenAlexClient
+# from backend.api.dimensions import DimensionsClient
 
 # cache = CacheManager(os.getenv("CACHE_DB_PATH", "cache.db"))
 # oa    = OpenAlexClient(os.getenv("OPENALEX_EMAIL", "research@olemiss.edu"), cache)
