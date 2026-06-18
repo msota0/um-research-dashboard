@@ -1,0 +1,15 @@
+.root { display: flex; flex-direction: column; gap: 20px; }
+.statGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.content { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+.listPanel { background: var(--um-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.listHeader { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--um-border); flex-wrap: wrap; gap: 8px; }
+.listTitle { font-size: 0.95rem; font-weight: 700; color: var(--um-navy); }
+.listActions { display: flex; gap: 8px; align-items: center; }
+.searchInput { padding: 6px 12px; border: 1px solid var(--um-border); border-radius: 20px; font-size: 0.8rem; outline: none; width: 160px; }
+.searchInput:focus { border-color: var(--um-navy); }
+.csvBtn { padding: 6px 12px; font-size: 0.78rem; border-radius: var(--radius-sm); border: 1px solid var(--um-border); background: var(--um-card); cursor: pointer; transition: all 0.15s; }
+.csvBtn:hover { background: var(--um-navy); color: #fff; border-color: var(--um-navy); }
+.statusBadge { display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; background: #E5E7EB; color: #374151; font-weight: 600; }
+@media (max-width: 1000px) { .content { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .statGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .statGrid { grid-template-columns: 1fr; } }

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>University of Mississippi — Research Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css"/>
+  <link rel="stylesheet" href="/static/css/dashboard.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════ TOP NAVBAR ═══════════════════════ -->
+<header class="um-header sticky-top">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
+      <!-- Logo + title -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="um-logo-box">UM</div>
+        <div>
+          <div class="um-header-title">University of Mississippi Research Dashboard</div>
+          <div class="um-header-subtitle">Oxford, MS &nbsp;|&nbsp; Data from OpenAlex &amp; Dimensions AI</div>
+        </div>
+      </div>
+      <!-- Global search -->
+      <div class="um-search-wrapper position-relative">
+        <input id="globalSearch" type="search" class="form-control form-control-sm um-search"
+               placeholder="Search publications &amp; authors…" autocomplete="off"/>
+        <div id="searchDropdown" class="um-search-dropdown d-none"></div>
+      </div>
+      <!-- Year range filter -->
+      <div class="um-year-filter d-flex align-items-center gap-2">
+        <span class="text-white small fw-semibold text-nowrap">Years:</span>
+        <div id="yearSlider" style="width:160px;"></div>
+        <span id="yearRangeLabel" class="text-white small text-nowrap">2000–<span id="maxYearLabel"></span></span>
+      </div>
+    </div>
+
+    <!-- Tab navigation -->
+    <nav class="um-tabs d-flex flex-nowrap overflow-auto gap-1 pb-1">
+      <button class="um-tab active" data-tab="overview"><i class="bi bi-speedometer2 me-1"></i>Overview</button>
+      <button class="um-tab" data-tab="publications"><i class="bi bi-file-earmark-text me-1"></i>Publications</button>
+      <button class="um-tab" data-tab="fields"><i class="bi bi-tags me-1"></i>Research Fields</button>
+      <button class="um-tab" data-tab="openaccess"><i class="bi bi-unlock me-1"></i>Open Access</button>
+      <button class="um-tab" data-tab="authors"><i class="bi bi-people me-1"></i>Authors</button>
+      <button class="um-tab" data-tab="grants"><i class="bi bi-cash-stack me-1"></i>Grants</button>
+      <button class="um-tab" data-tab="trials"><i class="bi bi-heart-pulse me-1"></i>Clinical Trials</button>
+      <button class="um-tab" data-tab="patents"><i class="bi bi-lightbulb me-1"></i>Patents</button>
+      <button class="um-tab" data-tab="collaborations"><i class="bi bi-diagram-3 me-1"></i>Collaborations</button>
+      <button class="um-tab" data-tab="journals"><i class="bi bi-journal-bookmark me-1"></i>Journals</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════ ERROR BANNERS ═══════════════════════ -->
+<div id="errorBanners" class="container-fluid px-4 mt-2"></div>
+
+<!-- ═══════════════════════ TAB PANELS ═══════════════════════ -->
+<main class="container-fluid px-4 py-3">
+
+  <!-- ── TAB: OVERVIEW ── -->
+  <section id="tab-overview" class="tab-panel">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="stat-card" id="card-total-pubs">
+          <div class="stat-label">Total Publications</div>
+          <div class="stat-value skeleton" id="val-total-pubs">—</div>
+          <div class="stat-trend"><canvas id="spark-pubs" height="40"></canvas></div>
+          <div class="stat-badge badge-openalex">OpenAlex</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card" id="card-total-cites">
+          <div class="stat-label">Total Citations</div>
+          <div class="stat-value skeleton" id="val-total-cites">—</div>
+          <div class="stat-trend"><canvas id="spark-cites" height="40"></canvas></div>
+          <div class="stat-badge badge-openalex">OpenAlex</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">h-index</div>
+          <div class="stat-value skeleton" id="val-hindex">—</div>
+          <div class="stat-sub" id="val-i10index">i10-index: —</div>
+          <div class="stat-badge badge-openalex">OpenAlex</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Open Access %</div>
+          <div class="stat-value skeleton" id="val-oa-pct">—</div>
+          <div class="stat-sub">of all publications</div>
+          <div class="stat-badge badge-openalex">OpenAlex</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Total Grants</div>
+          <div class="stat-value skeleton" id="val-total-grants">—</div>
+          <div class="stat-sub" id="val-top-funder">Top funder: —</div>
+          <div class="stat-badge badge-dimensions">Dimensions AI</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Total Grant Funding</div>
+          <div class="stat-value skeleton" id="val-total-funding">—</div>
+          <div class="stat-trend"><canvas id="spark-funding" height="40"></canvas></div>
+          <div class="stat-badge badge-dimensions">Dimensions AI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data sources row -->
+    <div class="data-sources-row d-flex flex-wrap gap-3 mb-3">
+      <div class="source-chip">
+        <span class="badge-openalex me-1">OpenAlex</span>
+        <span class="source-ts" id="ts-openalex">Loading…</span>
+      </div>
+      <div class="source-chip">
+        <span class="badge-dimensions me-1">Dimensions AI</span>
+        <span class="source-ts" id="ts-dimensions">Loading…</span>
+      </div>
+    </div>
+
+    <!-- Overview publication count comparison note -->
+    <div class="info-card mb-3" id="overview-pub-compare" style="display:none">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Publication count note:</strong>
+      OpenAlex reports <span id="oa-pub-count">—</span> publications;
+      Dimensions reports <span id="dim-pub-count">—</span> publications.
+      <span class="info-tooltip" tabindex="0" data-bs-toggle="tooltip"
+        title="Counts differ because OpenAlex and Dimensions use different coverage and disambiguation methods. Both are valid estimates.">
+        <i class="bi bi-question-circle"></i>
+      </span>
+    </div>
+  </section>
+
+  <!-- ── TAB: PUBLICATIONS ── -->
+  <section id="tab-publications" class="tab-panel d-none">
+    <div class="chart-card mb-3">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Publications per Year</h5>
+        <div>
+          <button id="btn-dim-compare" class="btn btn-sm btn-outline-secondary me-2">Show Dimensions Comparison</button>
+          <span class="badge-both">Both</span>
+        </div>
+      </div>
+      <div class="chart-wrapper"><canvas id="chart-pubs-year"></canvas><div class="chart-spinner d-none" id="spin-pubs-year"></div></div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-6">
+        <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
+          <label class="fw-semibold small">Type:</label>
+          <select id="filter-pub-type" class="form-select form-select-sm" style="width:auto">
+            <option value="">All Types</option>
+            <option value="article">Article</option>
+            <option value="book">Book</option>
+            <option value="book-chapter">Book Chapter</option>
+            <option value="dataset">Dataset</option>
+            <option value="preprint">Preprint</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card mb-3">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Publications by Type</h5>
+        <span class="badge-openalex">OpenAlex</span>
+      </div>
+      <div class="chart-wrapper"><canvas id="chart-pubs-type"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Publication List</h5>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="downloadCSV('publications')"><i class="bi bi-download me-1"></i>Download CSV</button>
+          <span class="badge-openalex ms-2">OpenAlex</span>
+        </div>
+      </div>
+      <div id="table-pubs" class="table-responsive"></div>
+      <div id="paging-pubs" class="d-flex justify-content-between align-items-center p-2 small"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB: RESEARCH FIELDS ── -->
+  <section id="tab-fields" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-lg-7">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Top 20 Research Fields</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper chart-tall"><canvas id="chart-fields-bar"></canvas></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-5">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Field Distribution (Top 8)</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper"><canvas id="chart-fields-donut"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><h5 class="mb-0">Fields Table</h5></div>
+      <div id="table-fields" class="table-responsive"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB: OPEN ACCESS ── -->
+  <section id="tab-openaccess" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-5">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Open Access Breakdown</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper"><canvas id="chart-oa-donut"></canvas></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-7">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">OA Percentage by Year</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper"><canvas id="chart-oa-trend"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="info-card" id="oa-summary-text">
+      <i class="bi bi-info-circle me-2"></i>
+      <span id="oa-summary-sentence">Loading open access data…</span>
+    </div>
+  </section>
+
+  <!-- ── TAB: AUTHORS ── -->
+  <section id="tab-authors" class="tab-panel d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h5 class="mb-0">Top 25 Authors</h5>
+      <div class="d-flex gap-2">
+        <input id="author-search" type="search" class="form-control form-control-sm" placeholder="Search authors…" style="width:200px"/>
+        <span class="badge-openalex align-self-center">OpenAlex</span>
+      </div>
+    </div>
+    <div id="table-authors" class="table-responsive"></div>
+  </section>
+
+  <!-- ── TAB: GRANTS ── -->
+  <section id="tab-grants" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Total Grants</div>
+          <div class="stat-value skeleton" id="val-grants-total">—</div>
+          <div class="stat-badge badge-dimensions">Dimensions AI</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Total Funding</div>
+          <div class="stat-value skeleton" id="val-grants-funding">—</div>
+          <div class="stat-badge badge-dimensions">Dimensions AI</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card">
+          <div class="stat-label">Top Funder</div>
+          <div class="stat-value-sm skeleton" id="val-grants-top-funder">—</div>
+          <div class="stat-badge badge-dimensions">Dimensions AI</div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-lg-6">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Top 10 Funders by Total USD</h5>
+            <span class="badge-dimensions">Dimensions AI</span>
+          </div>
+          <div class="chart-wrapper chart-tall"><canvas id="chart-grants-funders"></canvas></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Grant Funding by Year</h5>
+            <span class="badge-dimensions">Dimensions AI</span>
+          </div>
+          <div class="chart-wrapper"><canvas id="chart-grants-year"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Grant List</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="downloadCSV('grants')"><i class="bi bi-download me-1"></i>Download CSV</button>
+      </div>
+      <div id="table-grants" class="table-responsive"></div>
+      <div id="paging-grants" class="d-flex justify-content-between align-items-center p-2 small"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB: CLINICAL TRIALS ── -->
+  <section id="tab-trials" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Total Trials</div><div class="stat-value skeleton" id="val-trials-total">—</div><div class="stat-badge badge-dimensions">Dimensions AI</div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value skeleton" id="val-trials-active">—</div><div class="stat-badge badge-dimensions">Dimensions AI</div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value skeleton" id="val-trials-completed">—</div><div class="stat-badge badge-dimensions">Dimensions AI</div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Recruiting</div><div class="stat-value skeleton" id="val-trials-recruiting">—</div><div class="stat-badge badge-dimensions">Dimensions AI</div></div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-5">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Trials by Phase</h5>
+            <span class="badge-dimensions">Dimensions AI</span>
+          </div>
+          <div class="chart-wrapper"><canvas id="chart-trials-phase"></canvas></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-7">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Trial List</h5>
+            <div class="d-flex gap-2 align-items-center">
+              <input id="trial-search" type="search" class="form-control form-control-sm" placeholder="Search…" style="width:160px"/>
+              <button class="btn btn-sm btn-outline-secondary" onclick="downloadCSV('trials')"><i class="bi bi-download me-1"></i>CSV</button>
+            </div>
+          </div>
+          <div id="table-trials" class="table-responsive"></div>
+          <div id="paging-trials" class="d-flex justify-content-between align-items-center p-2 small"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: PATENTS ── -->
+  <section id="tab-patents" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="stat-card"><div class="stat-label">Total Patents</div><div class="stat-value skeleton" id="val-patents-total">—</div><div class="stat-badge badge-dimensions">Dimensions AI</div></div>
+      </div>
+    </div>
+    <div class="chart-card mb-3">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Patents Filed per Year</h5>
+        <span class="badge-dimensions">Dimensions AI</span>
+      </div>
+      <div class="chart-wrapper"><canvas id="chart-patents-year"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Patent List</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="downloadCSV('patents')"><i class="bi bi-download me-1"></i>Download CSV</button>
+      </div>
+      <div id="table-patents" class="table-responsive"></div>
+      <div id="paging-patents" class="d-flex justify-content-between align-items-center p-2 small"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB: COLLABORATIONS ── -->
+  <section id="tab-collaborations" class="tab-panel d-none">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-lg-6">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Top 20 Collaborating Institutions</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper chart-tall"><canvas id="chart-collab-inst"></canvas></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="chart-card h-100">
+          <div class="chart-card-header">
+            <h5 class="mb-0">Top 15 Collaborating Countries</h5>
+            <span class="badge-openalex">OpenAlex</span>
+          </div>
+          <div class="chart-wrapper chart-tall"><canvas id="chart-collab-countries"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><h5 class="mb-0">Country Collaboration Map</h5><span class="badge-openalex">OpenAlex</span></div>
+      <div id="collab-map" class="p-3">
+        <div id="map-placeholder" class="text-muted text-center py-4">
+          <i class="bi bi-globe2 fs-1 d-block mb-2"></i>
+          Country-level collaboration counts shown in bar chart above.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: JOURNALS ── -->
+  <section id="tab-journals" class="tab-panel d-none">
+    <div class="chart-card mb-3">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Top 20 Journals</h5>
+        <span class="badge-openalex">OpenAlex</span>
+      </div>
+      <div class="chart-wrapper chart-tall"><canvas id="chart-journals-bar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h5 class="mb-0">Journal Table</h5>
+        <input id="journal-search" type="search" class="form-control form-control-sm" placeholder="Search journals…" style="width:200px"/>
+      </div>
+      <div id="table-journals" class="table-responsive"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════ AUTHOR MODAL ═══════════════════════ -->
+<div class="modal fade" id="authorModal" tabindex="-1" aria-labelledby="authorModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header um-modal-header">
+        <h5 class="modal-title text-white" id="authorModalLabel">Author Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="authorModalBody">
+        <div class="text-center py-3"><div class="spinner-border text-danger"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="um-footer mt-4">
+  <div class="container-fluid px-4 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span>© 2024 University of Mississippi &nbsp;|&nbsp; Research Analytics</span>
+    <span>Data: <a href="https://openalex.org" target="_blank" class="text-white">OpenAlex</a> &amp; <a href="https://www.dimensions.ai" target="_blank" class="text-white">Dimensions AI</a></span>
+    <a href="/api/cache-status" target="_blank" class="text-white small">Cache Status</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>
