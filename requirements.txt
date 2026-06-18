@@ -1,0 +1,21 @@
+# Web / serving
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# Data layer
+sqlalchemy>=2.0
+psycopg[binary]>=3.2
+alembic>=1.13
+
+# Config / http / retry / matching
+pydantic>=2.7
+pydantic-settings>=2.3
+httpx>=0.27
+tenacity>=8.5
+rapidfuzz>=3.9
+
+# Optional best-effort Google Scholar enrichment (guarded by ENABLE_SCHOLARLY)
+scholarly>=1.7
+
+# Dev / test
+pytest>=8.2

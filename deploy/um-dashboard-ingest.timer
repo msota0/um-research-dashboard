@@ -1,0 +1,11 @@
+# Nightly incremental refresh at 02:30. Enable:
+#   sudo systemctl enable --now um-dashboard-ingest.timer
+[Unit]
+Description=Nightly UM Research Dashboard refresh
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

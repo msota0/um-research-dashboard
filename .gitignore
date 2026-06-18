@@ -1,0 +1,35 @@
+# Secrets / env
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Next.js
+node_modules/
+frontend/.next/
+frontend/out/
+npm-debug.log*
+
+# Data / logs
+*.log
+/data/
+dump.rdb
+
+# Local DB exports / one-off dumps (NOT the shipped seed in seed/)
+/export/
+/export.zip
+/db_table_catalog.csv
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

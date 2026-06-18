@@ -1,0 +1,17 @@
+# FastAPI backend (read-only API over Postgres).
+# Install: copy to /etc/systemd/system/, edit paths/User, then:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now um-dashboard-api
+[Unit]
+Description=UM Research Dashboard API
+After=network.target postgresql.service
+
+[Service]
+User=www-data
+WorkingDirectory=/opt/um-research-dashboard
+EnvironmentFile=/opt/um-research-dashboard/.env
+ExecStart=/opt/um-research-dashboard/.venv/bin/uvicorn backend.app.main:app --host 127.0.0.1 --port 5000 --workers 4
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

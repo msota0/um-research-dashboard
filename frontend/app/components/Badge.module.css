@@ -1,0 +1,13 @@
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  color: #fff;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.openalex   { background: var(--badge-openalex); }
+.dimensions { background: var(--badge-dimensions); }
+.both       { background: var(--badge-both); }
